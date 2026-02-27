@@ -85,11 +85,11 @@ cd SurveyAnalyzer
 
 python -m venv venv
 
-# Windows
+-- Windows
 
 venv\Scripts\activate
 
-# Linux/Mac
+-- Linux/Mac
 
 source venv/bin/activate
 
