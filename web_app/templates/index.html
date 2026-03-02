@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Survey Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Survey Analyzer</h1>
+
+        <form method="post">
+            <label for="column">Select a column:</label>
+            <select name="column" id="column">
+                {% for col in columns %}
+                <option value="{{ col }}">{{ col }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Analyze</button>
+        </form>
+
+        {% if result %}
+            <h2>Analysis Result:</h2>
+
+            {% if result.type == 'numeric' %}
+                <table border="1" cellpadding="5">
+                    <tr><th>Column</th><td>{{ result.column }}</td></tr>
+                    <tr><th>Count</th><td>{{ result.count }}</td></tr>
+                    <tr><th>Mean</th><td>{{ result.mean }}</td></tr>
+                    <tr><th>Median</th><td>{{ result.median }}</td></tr>
+                    <tr><th>Min</th><td>{{ result.min }}</td></tr>
+                    <tr><th>Max</th><td>{{ result.max }}</td></tr>
+                    <tr><th>Std Dev</th><td>{{ result.std }}</td></tr>
+                </table>
+            {% elif result.type == 'categorical' %}
+                <table border="1" cellpadding="5">
+                    <tr><th>Column</th><td>{{ result.column }}</td></tr>
+                    <tr><th>Unique Values</th><td>{{ result.unique_values }}</td></tr>
+                </table>
+
+                <h3>Top Values:</h3>
+                <table border="1" cellpadding="5">
+                    <tr><th>Value</th><th>Count</th></tr>
+                    {% for key, value in result.top_values.items() %}
+                    <tr>
+                        <td>{{ key }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>
