@@ -1,3 +1,5 @@
+from unittest import result
+
 from flask import Flask, render_template, request
 import os
 import sys
@@ -31,16 +33,18 @@ def index():
         if selected_column:
             result = analyze_column(df, selected_column)
 
-            charts_dir = os.path.join("static", "charts")
-            if result["type"] == "numeric":
-                chart_file = generate_numeric_chart(df, selected_column, charts_dir)
-            elif result["type"] == "categorical":
-                chart_file = generate_categorical_chart(df, selected_column, charts_dir)
+        charts_dir = os.path.join(project_root, "web_app", "static", "charts")
+        if result["type"] == "numeric":
+            chart_file = generate_numeric_chart(df, selected_column, charts_dir)
+        elif result["type"] == "categorical":
+            chart_file = generate_categorical_chart(df, selected_column, charts_dir)
 
-            if chart_file:
-                chart_file = os.path.relpath(chart_file, "static")
+        # Make path relative to static
+        if chart_file:
+            chart_file = os.path.relpath(chart_file, os.path.join(project_root, "web_app", "static"))
+        return render_template("index.html", columns=columns, result=result, chart_file=chart_file)
 
-    return render_template("index.html", columns=columns, result=result, chart_file=chart_file)
+
 
 if __name__ == "__main__":
     # This ensures Flask runs correctly when executed as a script
