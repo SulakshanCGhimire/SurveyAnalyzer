@@ -49,6 +49,10 @@
                 </table>
             {% endif %}
         {% endif %}
+        {% if chart_file %}
+        <h3>Chart:</h3>
+        <img src="{{ url_for('static', filename=chart_file) }}" alt="Chart" width="600">
+        {% endif %}
     </div>
 </body>
 </html>
