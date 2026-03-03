@@ -12,7 +12,7 @@
             <label for="column">Select a column:</label>
             <select name="column" id="column">
                 {% for col in columns %}
-                <option value="{{ col }}">{{ col }}</option>
+                <option value="{{ col }}" {% if col == selected_column %}selected{% endif %}>{{ col }}</option>
                 {% endfor %}
             </select>
 

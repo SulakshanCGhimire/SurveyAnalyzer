@@ -38,6 +38,7 @@ def index():
     result = None
     chart_filename = None
     txt_file = None
+    selected_column = None
 
     if request.method == "POST":
         selected_column = request.form.get("column")
@@ -66,7 +67,8 @@ def index():
         columns=columns,
         result=result,
         chart_filename=chart_filename,
-        txt_file=txt_file
+        txt_file=txt_file if request.form.get("export") else None,
+        selected_column=selected_column
     )
 
 # -------------------------------------------------
