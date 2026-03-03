@@ -12,18 +12,19 @@
             <label for="column">Select a column:</label>
             <select name="column" id="column">
                 {% for col in columns %}
-                <option value="{{ col }}" {% if col == selected_column %}selected{% endif %}>{{ col }}</option>
+                <option value="{{ col }}" {% if col == selected_column %}selected{% endif %}>
+                    {{ col }}
+                </option>
                 {% endfor %}
             </select>
-
-            <button type="submit">Analyze</button>
-            <button type="submit" name="export" value="1">Export TXT</button>
+            <button type="submit" name="action" value="analyze">Analyze</button>
+            <button type="submit" name="action" value="export">Export</button>
         </form>
 
         {% if result %}
             <h2>Analysis Result:</h2>
 
-           {% if result.type == 'numeric' %}
+            {% if result.type == 'numeric' %}
                 <table>
                     <tr><th>Column</th><td>{{ result.column }}</td></tr>
                     <tr><th>Count</th><td>{{ result.summary.count }}</td></tr>
@@ -33,6 +34,7 @@
                     <tr><th>Max</th><td>{{ result.summary.max }}</td></tr>
                     <tr><th>Std Dev</th><td>{{ result.summary.std }}</td></tr>
                 </table>
+
             {% elif result.type == 'categorical' %}
                 <table>
                     <tr><th>Column</th><td>{{ result.column }}</td></tr>
@@ -59,11 +61,24 @@
             </div>
         {% endif %}
 
-        {% if txt_file %}
+        {% if txt_file or csv_file or chart_filename %}
             <div class="download-links">
-                <a href="{{ url_for('download_file', filename=txt_file) }}">📄 Download TXT Report</a>
+                {% if txt_file %}
+                    <a href="{{ url_for('download_file', filename=txt_file) }}">📄 Download TXT Report</a>
+                {% endif %}
+
+                {% if csv_file %}
+                    <a href="{{ url_for('download_file', filename=csv_file) }}">📊 Download CSV Summary</a>
+                {% endif %}
+
+                {% if chart_filename %}
+                    <a href="{{ url_for('static', filename='charts/' + chart_filename) }}" download>
+                        🖼 Download Chart
+                    </a>
+                {% endif %}
             </div>
         {% endif %}
+
     </div>
 </body>
 </html>

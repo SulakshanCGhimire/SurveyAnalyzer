@@ -1,0 +1,9 @@
+Analysis Report for Column: Hazard (Intensity)
+==================================================
+
+count: 3985
+mean: 0.32
+median: 0.01
+std: 0.78
+min: 0.0
+max: 10.0

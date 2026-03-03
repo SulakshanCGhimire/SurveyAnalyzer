@@ -4,7 +4,7 @@ import os
 from survey_analyzer.parser import load_dataset
 from survey_analyzer.analyzer import analyze_column
 from survey_analyzer.visualizer import generate_numeric_chart, generate_categorical_chart
-from survey_analyzer.exporter import export_txt_report  # make sure this exists
+from survey_analyzer.exporter import export_txt_report, export_csv_summary
 
 app = Flask(__name__)
 
@@ -23,10 +23,10 @@ df = load_dataset(csv_path)
 # Directories for charts and exports
 # -------------------------------------------------
 charts_dir = os.path.join(app.static_folder, "charts")
-os.makedirs(charts_dir, exist_ok=True)
+exports_dir = os.path.join(app.static_folder, "exports")
 
-output_dir = os.path.join(app.static_folder, "exports")
-os.makedirs(output_dir, exist_ok=True)
+os.makedirs(charts_dir, exist_ok=True)
+os.makedirs(exports_dir, exist_ok=True)
 
 # -------------------------------------------------
 # Routes
@@ -38,16 +38,20 @@ def index():
     result = None
     chart_filename = None
     txt_file = None
+    csv_file = None
     selected_column = None
 
     if request.method == "POST":
         selected_column = request.form.get("column")
-        export = request.form.get("export")  # will be set if user clicked Export button
+        action = request.form.get("action")  # analyze or export
 
         if selected_column:
+            # Analyze column
             result = analyze_column(df, selected_column)
 
+            # -------------------------
             # Generate chart
+            # -------------------------
             if result["type"] == "numeric":
                 saved_path = generate_numeric_chart(df, selected_column, charts_dir)
             elif result["type"] == "categorical":
@@ -58,16 +62,20 @@ def index():
             if saved_path:
                 chart_filename = os.path.basename(saved_path)
 
-            # Generate TXT report if Export button clicked
-            if export:
-                txt_file = export_txt_report(result, selected_column, output_dir)
+            # -------------------------
+            # Handle export
+            # -------------------------
+            if action == "export":
+                txt_file = export_txt_report(result, selected_column, exports_dir)
+                csv_file = export_csv_summary(result, selected_column, exports_dir)
 
     return render_template(
         "index.html",
         columns=columns,
         result=result,
         chart_filename=chart_filename,
-        txt_file=txt_file if request.form.get("export") else None,
+        txt_file=txt_file,
+        csv_file=csv_file,
         selected_column=selected_column
     )
 
@@ -76,11 +84,10 @@ def index():
 # -------------------------------------------------
 @app.route("/exports/<filename>")
 def download_file(filename):
-    """
-    Serve files from the exports folder for download.
-    """
-    return send_from_directory(output_dir, filename, as_attachment=True)
+    return send_from_directory(exports_dir, filename, as_attachment=True)
 
-
+# -------------------------------------------------
+# Run app
+# -------------------------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
