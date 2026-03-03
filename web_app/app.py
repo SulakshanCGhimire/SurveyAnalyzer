@@ -1,11 +1,5 @@
-from unittest import result
-
 from flask import Flask, render_template, request
 import os
-import sys
-
-# Add project root to sys.path so imports work
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from survey_analyzer.parser import load_dataset
 from survey_analyzer.analyzer import analyze_column
@@ -13,9 +7,20 @@ from survey_analyzer.visualizer import generate_numeric_chart, generate_categori
 
 app = Flask(__name__)
 
-# Load dataset once at startup
-df = load_dataset(os.path.join("data", "nepal_earthquake.csv"))
+# -------------------------------------------------
+# Define project root ONCE (important)
+# -------------------------------------------------
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Full path to CSV
+csv_path = os.path.join(project_root, "data", "nepal_earthquake.csv")
+print("Loading CSV from:", csv_path)
+
+df = load_dataset(csv_path)
+
+# -------------------------------------------------
+# Routes
+# -------------------------------------------------
 @app.route("/", methods=["GET", "POST"])
 def index():
     if df is None:
@@ -24,28 +29,33 @@ def index():
     columns = df.columns.tolist()
     result = None
     chart_file = None
-    columns = df.columns.tolist()
-    result = None
-    chart_file = None
 
     if request.method == "POST":
         selected_column = request.form.get("column")
+
         if selected_column:
             result = analyze_column(df, selected_column)
 
-        charts_dir = os.path.join(project_root, "web_app", "static", "charts")
-        if result["type"] == "numeric":
-            chart_file = generate_numeric_chart(df, selected_column, charts_dir)
-        elif result["type"] == "categorical":
-            chart_file = generate_categorical_chart(df, selected_column, charts_dir)
+            # Absolute path for saving charts
+            charts_dir = os.path.join(project_root, "web_app", "static", "charts")
 
-        # Make path relative to static
-        if chart_file:
-            chart_file = os.path.relpath(chart_file, os.path.join(project_root, "web_app", "static"))
-        return render_template("index.html", columns=columns, result=result, chart_file=chart_file)
+            if result["type"] == "numeric":
+                chart_file = generate_numeric_chart(df, selected_column, charts_dir)
+            elif result["type"] == "categorical":
+                chart_file = generate_categorical_chart(df, selected_column, charts_dir)
 
+            # Convert to relative path for Flask static
+            if chart_file:
+                chart_file = os.path.relpath(
+                    chart_file,
+                    os.path.join(project_root, "web_app", "static")
+                )
+
+    return render_template("index.html",
+                           columns=columns,
+                           result=result,
+                           chart_file=chart_file)
 
 
 if __name__ == "__main__":
-    # This ensures Flask runs correctly when executed as a script
     app.run(debug=True)
