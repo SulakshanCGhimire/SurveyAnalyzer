@@ -59,7 +59,7 @@ SurveyAnalyzer/
 
 ├── data/
 
-│   └── nepal_survey_quickstats.csv  # Your CSV dataset
+│   └── nepal_earthquake.csv  # Your CSV dataset
 
 ├── charts/                    # Generated charts (Python output)
 
