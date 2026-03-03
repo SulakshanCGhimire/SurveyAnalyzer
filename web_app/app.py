@@ -8,7 +8,7 @@ from survey_analyzer.visualizer import generate_numeric_chart, generate_categori
 app = Flask(__name__)
 
 # -------------------------------------------------
-# Define project root ONCE (important)
+# Define project root
 # -------------------------------------------------
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,12 +23,13 @@ df = load_dataset(csv_path)
 # -------------------------------------------------
 @app.route("/", methods=["GET", "POST"])
 def index():
+
     if df is None:
         return "Dataset could not be loaded. Check the CSV path!"
 
     columns = df.columns.tolist()
     result = None
-    chart_file = None
+    chart_filename = None
 
     if request.method == "POST":
         selected_column = request.form.get("column")
@@ -36,25 +37,26 @@ def index():
         if selected_column:
             result = analyze_column(df, selected_column)
 
-            # Absolute path for saving charts
-            charts_dir = os.path.join(project_root, "web_app", "static", "charts")
+            # Directory where charts are saved (absolute disk path)
+            charts_dir = os.path.join(app.static_folder, "charts")
 
             if result["type"] == "numeric":
-                chart_file = generate_numeric_chart(df, selected_column, charts_dir)
+                saved_path = generate_numeric_chart(df, selected_column, charts_dir)
             elif result["type"] == "categorical":
-                chart_file = generate_categorical_chart(df, selected_column, charts_dir)
+                saved_path = generate_categorical_chart(df, selected_column, charts_dir)
+            else:
+                saved_path = None
 
-            # Convert to relative path for Flask static
-            if chart_file:
-                chart_file = os.path.relpath(
-                    chart_file,
-                    os.path.join(project_root, "web_app", "static")
-                )
+            # Extract ONLY filename (important!)
+            if saved_path:
+                chart_filename = os.path.basename(saved_path)
 
-    return render_template("index.html",
-                           columns=columns,
-                           result=result,
-                           chart_file=chart_file)
+    return render_template(
+        "index.html",
+        columns=columns,
+        result=result,
+        chart_filename=chart_filename
+    )
 
 
 if __name__ == "__main__":
