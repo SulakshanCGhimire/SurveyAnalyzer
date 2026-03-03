@@ -12,6 +12,8 @@ def generate_numeric_chart(df, column_name, output_dir="charts"):
 
     os.makedirs(output_dir, exist_ok=True)
     file_path = os.path.join(output_dir, f"{column_name}_hist.png")
+    plt.savefig(file_path)  
+    plt.close()  # close figure to free memory
 
     plt.figure(figsize=(6,4))
     df[column_name].dropna().hist(bins=20, color="skyblue", edgecolor="black")
@@ -32,6 +34,8 @@ def generate_categorical_chart(df, column_name, output_dir="charts"):
 
     os.makedirs(output_dir, exist_ok=True)
     file_path = os.path.join(output_dir, f"{column_name}_bar.png")
+    plt.savefig(file_path)
+    plt.close()
 
     counts = df[column_name].value_counts().head(5)
     plt.figure(figsize=(6,4))
