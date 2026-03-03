@@ -15,30 +15,32 @@
                 <option value="{{ col }}">{{ col }}</option>
                 {% endfor %}
             </select>
+
             <button type="submit">Analyze</button>
+            <button type="submit" name="export" value="1">Export TXT</button>
         </form>
 
         {% if result %}
             <h2>Analysis Result:</h2>
 
-            {% if result.type == 'numeric' %}
-                <table border="1" cellpadding="5">
+           {% if result.type == 'numeric' %}
+                <table>
                     <tr><th>Column</th><td>{{ result.column }}</td></tr>
-                    <tr><th>Count</th><td>{{ result.count }}</td></tr>
-                    <tr><th>Mean</th><td>{{ result.mean }}</td></tr>
-                    <tr><th>Median</th><td>{{ result.median }}</td></tr>
-                    <tr><th>Min</th><td>{{ result.min }}</td></tr>
-                    <tr><th>Max</th><td>{{ result.max }}</td></tr>
-                    <tr><th>Std Dev</th><td>{{ result.std }}</td></tr>
+                    <tr><th>Count</th><td>{{ result.summary.count }}</td></tr>
+                    <tr><th>Mean</th><td>{{ result.summary.mean }}</td></tr>
+                    <tr><th>Median</th><td>{{ result.summary.median }}</td></tr>
+                    <tr><th>Min</th><td>{{ result.summary.min }}</td></tr>
+                    <tr><th>Max</th><td>{{ result.summary.max }}</td></tr>
+                    <tr><th>Std Dev</th><td>{{ result.summary.std }}</td></tr>
                 </table>
             {% elif result.type == 'categorical' %}
-                <table border="1" cellpadding="5">
+                <table>
                     <tr><th>Column</th><td>{{ result.column }}</td></tr>
                     <tr><th>Unique Values</th><td>{{ result.unique_values }}</td></tr>
                 </table>
 
                 <h3>Top Values:</h3>
-                <table border="1" cellpadding="5">
+                <table>
                     <tr><th>Value</th><th>Count</th></tr>
                     {% for key, value in result.top_values.items() %}
                     <tr>
@@ -49,14 +51,18 @@
                 </table>
             {% endif %}
         {% endif %}
+
         {% if chart_filename %}
+            <div class="chart-container">
                 <h3>Chart:</h3>
-            <img src="{{ url_for('static', filename='charts/' + chart_filename) }}">
+                <img src="{{ url_for('static', filename='charts/' + chart_filename) }}">
+            </div>
         {% endif %}
+
         {% if txt_file %}
-            <p>
-                <a href="{{ url_for('download_file', filename=txt_file) }}">Download TXT Report</a>
-            </p>
+            <div class="download-links">
+                <a href="{{ url_for('download_file', filename=txt_file) }}">📄 Download TXT Report</a>
+            </div>
         {% endif %}
     </div>
 </body>

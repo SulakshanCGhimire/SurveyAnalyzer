@@ -1,0 +1,9 @@
+Analysis Report for Column: Housing
+==================================================
+
+count: 3985
+mean: 5.71
+median: 5.61
+std: 1.95
+min: 1.17
+max: 9.94

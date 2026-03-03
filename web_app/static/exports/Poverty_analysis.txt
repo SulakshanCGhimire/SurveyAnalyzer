@@ -1,0 +1,9 @@
+Analysis Report for Column: Poverty
+==================================================
+
+count: 3985
+mean: 5.48
+median: 5.62
+std: 2.27
+min: 0.0
+max: 10.0

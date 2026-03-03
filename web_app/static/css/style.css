@@ -1,21 +1,82 @@
+/* General page styling */
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
+    background-color: #fafafa;
+    color: #333;
 }
 
+/* Headings */
 h1, h2, h3 {
     color: #333;
 }
 
+/* Tables */
 table {
     border-collapse: collapse;
     margin: 10px 0;
+    width: 100%;
 }
 
 th, td {
-    padding: 5px 10px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    text-align: left;
 }
 
 th {
     background-color: #f0f0f0;
+}
+
+/* Form elements */
+select, button {
+    padding: 6px 10px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+button {
+    cursor: pointer;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Download links */
+.download-links {
+    margin-top: 15px;
+}
+
+.download-links a {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 4px 2px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.download-links a:hover {
+    background-color: #1e7e34;
+}
+
+/* Chart image */
+.chart-container {
+    margin: 15px 0;
+}
+
+.chart-container img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    padding: 5px;
+    background-color: white;
+    border-radius: 4px;
 }
