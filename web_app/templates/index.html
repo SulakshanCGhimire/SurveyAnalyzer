@@ -9,12 +9,12 @@
         <h1>Survey Analyzer</h1>
         <form method="post">
 
+            <!-- District selection -->
             <label for="district">Select District:</label>
             <select name="district" id="district">
                 <option value="All" {% if selected_district == "All" %}selected{% endif %}>
                     All
                 </option>
-
                 {% for dist in districts %}
                 <option value="{{ dist }}" {% if dist == selected_district %}selected{% endif %}>
                     {{ dist }}
@@ -22,7 +22,8 @@
                 {% endfor %}
             </select>
 
-            <label for="column">Select a column:</label>
+            <!-- Column 1 selection -->
+            <label for="column">Select First Column:</label>
             <select name="column" id="column">
                 {% for col in columns %}
                 <option value="{{ col }}" {% if col == selected_column %}selected{% endif %}>
@@ -31,9 +32,10 @@
                 {% endfor %}
             </select>
 
-            <label for="column2">Compare With column(Optional):</label>
+            <!-- Column 2 selection (optional) -->
+            <label for="column2">Select Second Column (Optional for Comparison):</label>
             <select name="column2" id="column2">
-                <option value="">None</option>
+                <option value="" {% if not selected_column2 %}selected{% endif %}>None</option>
                 {% for col in columns %}
                 <option value="{{ col }}" {% if col == selected_column2 %}selected{% endif %}>
                     {{ col }}
@@ -41,11 +43,13 @@
                 {% endfor %}
             </select>
 
+            <!-- Action buttons -->
             <button type="submit" name="action" value="analyze">Analyze</button>
             <button type="submit" name="action" value="export">Export</button>
 
         </form>
 
+        <!-- Analysis Result -->
         {% if result %}
             <h2>Analysis Result:</h2>
 
@@ -53,12 +57,12 @@
                 <table>
                     <tr><th>District</th><td>{{ selected_district }}</td></tr>
                     <tr><th>Column</th><td>{{ result.column }}</td></tr>
-                    <tr><th>Count</th><td>{{ result.summary.count }}</td></tr>
-                    <tr><th>Mean</th><td>{{ result.summary.mean }}</td></tr>
-                    <tr><th>Median</th><td>{{ result.summary.median }}</td></tr>
-                    <tr><th>Min</th><td>{{ result.summary.min }}</td></tr>
-                    <tr><th>Max</th><td>{{ result.summary.max }}</td></tr>
-                    <tr><th>Std Dev</th><td>{{ result.summary.std }}</td></tr>
+                    <tr><th>Count</th><td>{{ result.count }}</td></tr>
+                    <tr><th>Mean</th><td>{{ result.mean }}</td></tr>
+                    <tr><th>Median</th><td>{{ result.median }}</td></tr>
+                    <tr><th>Min</th><td>{{ result.min }}</td></tr>
+                    <tr><th>Max</th><td>{{ result.max }}</td></tr>
+                    <tr><th>Std Dev</th><td>{{ result.std }}</td></tr>
                 </table>
 
             {% elif result.type == 'categorical' %}
@@ -78,16 +82,38 @@
                     </tr>
                     {% endfor %}
                 </table>
+
+            {% elif result.type == 'comparison' %}
+                <h3>Comparison Result:</h3>
+                <table>
+                    <tr><th>District</th><td>{{ selected_district }}</td></tr>
+                    <tr><th>Column 1</th><td>{{ result.column1 }}</td></tr>
+                    <tr><th>Mean 1</th><td>{{ result.mean1 }}</td></tr>
+                    <tr><th>Count 1</th><td>{{ result.count1 }}</td></tr>
+                    <tr><th>Column 2</th><td>{{ result.column2 }}</td></tr>
+                    <tr><th>Mean 2</th><td>{{ result.mean2 }}</td></tr>
+                    <tr><th>Count 2</th><td>{{ result.count2 }}</td></tr>
+                </table>
+            {% elif result.type == 'error' %}
+                <p style="color:red;">{{ result.message }}</p>
             {% endif %}
         {% endif %}
 
+        <!-- Chart(s) -->
         {% if chart_filename %}
             <div class="chart-container">
-                <h3>Chart:</h3>
-                <img src="{{ url_for('static', filename='charts/' + chart_filename) }}">
+                <h3>Chart(s):</h3>
+                {% if chart_filename is string %}
+                    <img src="{{ url_for('static', filename='charts/' + chart_filename) }}">
+                {% else %}
+                    {% for fname in chart_filename %}
+                        <img src="{{ url_for('static', filename='charts/' + fname) }}">
+                    {% endfor %}
+                {% endif %}
             </div>
         {% endif %}
 
+        <!-- Downloads -->
         {% if txt_file or csv_file or chart_filename %}
             <div class="download-links">
                 {% if txt_file %}
@@ -99,9 +125,13 @@
                 {% endif %}
 
                 {% if chart_filename %}
-                    <a href="{{ url_for('static', filename='charts/' + chart_filename) }}" download>
-                        🖼 Download Chart
-                    </a>
+                    {% if chart_filename is string %}
+                        <a href="{{ url_for('static', filename='charts/' + chart_filename) }}" download>🖼 Download Chart</a>
+                    {% else %}
+                        {% for fname in chart_filename %}
+                            <a href="{{ url_for('static', filename='charts/' + fname) }}" download>🖼 Download Chart - {{ fname }}</a>
+                        {% endfor %}
+                    {% endif %}
                 {% endif %}
             </div>
         {% endif %}

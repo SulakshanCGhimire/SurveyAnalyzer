@@ -56,41 +56,66 @@ def index():
             filtered_df = df[df["DISTRICT"] == selected_district]
         
         if selected_column:
-            # Analyze column
-            result = analyze_column(filtered_df, selected_column)
+            # Comparison mode
+            if selected_column2:
+                result1 = analyze_column(filtered_df, selected_column)
+                result2 = analyze_column(filtered_df, selected_column2)
 
-            # -------------------------
-            # Generate chart
-            # -------------------------
-            if result["type"] == "numeric":
-                saved_path = generate_numeric_chart(filtered_df, selected_column, charts_dir)
-            elif result["type"] == "categorical":
-                saved_path = generate_categorical_chart(filtered_df, selected_column, charts_dir)
+                # Only numeric columns can be compared
+                if result1.get("type") == "numeric" and result2.get("type") == "numeric":
+                    result = {
+                        "type": "comparison",
+                        "column1": selected_column,
+                        "column2": selected_column2,
+                        "mean1": result1.get("mean", 0),
+                        "mean2": result2.get("mean", 0),
+                        "count1": result1.get("count", 0),
+                        "count2": result2.get("count", 0)
+                    }
+
+                    # Generate charts for both columns
+                    saved_path1 = generate_numeric_chart(filtered_df, selected_column, charts_dir)
+                    saved_path2 = generate_numeric_chart(filtered_df, selected_column2, charts_dir)
+                    chart_filename = [os.path.basename(saved_path1), os.path.basename(saved_path2)]
+
+                else:
+                    result = {
+                        "type": "error",
+                        "message": "Comparison only works for numeric columns."
+                    }
+                    chart_filename = None
+
+            # Single column analysis
             else:
-                saved_path = None
+                result = analyze_column(filtered_df, selected_column)
+                if result["type"] == "numeric":
+                    saved_path = generate_numeric_chart(filtered_df, selected_column, charts_dir)
+                elif result["type"] == "categorical":
+                    saved_path = generate_categorical_chart(filtered_df, selected_column, charts_dir)
+                else:
+                    saved_path = None
 
-            if saved_path:
-                chart_filename = os.path.basename(saved_path)
+                if saved_path:
+                    chart_filename = [os.path.basename(saved_path)]
 
-            # -------------------------
-            # Handle export
-            # -------------------------
-            if action == "export":
-                txt_file = export_txt_report(result, selected_column, exports_dir)
-                csv_file = export_csv_summary(result, selected_column, exports_dir)
+        # Handle export if requested
+        if action == "export" and result:
+            txt_file = export_txt_report(result, selected_column, exports_dir)
+            csv_file = export_csv_summary(result, selected_column, exports_dir)
 
-    return render_template(
-        "index.html",
-        columns=columns,
-        selected_column2=selected_column2,
-        districts=districts,
-        result=result,
-        chart_filename=chart_filename,
-        txt_file=txt_file,
-        csv_file=csv_file,
-        selected_column=selected_column,
-        selected_district=selected_district
-    )
+        # Always render template (move outside 'if selected_column')
+        return render_template(
+            "index.html",
+            columns=columns,
+            selected_column=selected_column,
+            selected_column2=selected_column2,
+            districts=districts,
+            selected_district=selected_district,
+            result=result,
+            chart_filename=chart_filename,
+            txt_file=txt_file,
+            csv_file=csv_file
+        )
 
 # -------------------------------------------------
 # Serve files from exports folder
