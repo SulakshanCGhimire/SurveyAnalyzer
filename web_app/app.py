@@ -41,18 +41,20 @@ def index():
     txt_file = None
     csv_file = None
     selected_column = None
+    selected_column2 = None
     selected_district = "All"
     filtered_df = df  # default = full dataset
 
     if request.method == "POST":
         selected_column = request.form.get("column")
+        selected_column2 = request.form.get("column2")
         selected_district = request.form.get("district", "All")
         action = request.form.get("action")  # analyze or export
 
         # Apply district filter
         if selected_district != "All":
             filtered_df = df[df["DISTRICT"] == selected_district]
-
+        
         if selected_column:
             # Analyze column
             result = analyze_column(filtered_df, selected_column)
@@ -80,6 +82,7 @@ def index():
     return render_template(
         "index.html",
         columns=columns,
+        selected_column2=selected_column2,
         districts=districts,
         result=result,
         chart_filename=chart_filename,
