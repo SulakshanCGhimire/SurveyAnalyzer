@@ -18,6 +18,7 @@ csv_path = os.path.join(project_root, "data", "nepal_earthquake.csv")
 print("Loading CSV from:", csv_path)
 
 df = load_dataset(csv_path)
+districts = sorted(df["DISTRICT"].dropna().unique().tolist())
 
 # -------------------------------------------------
 # Directories for charts and exports
@@ -40,22 +41,29 @@ def index():
     txt_file = None
     csv_file = None
     selected_column = None
+    selected_district = "All"
+    filtered_df = df  # default = full dataset
 
     if request.method == "POST":
         selected_column = request.form.get("column")
+        selected_district = request.form.get("district", "All")
         action = request.form.get("action")  # analyze or export
+
+        # Apply district filter
+        if selected_district != "All":
+            filtered_df = df[df["DISTRICT"] == selected_district]
 
         if selected_column:
             # Analyze column
-            result = analyze_column(df, selected_column)
+            result = analyze_column(filtered_df, selected_column)
 
             # -------------------------
             # Generate chart
             # -------------------------
             if result["type"] == "numeric":
-                saved_path = generate_numeric_chart(df, selected_column, charts_dir)
+                saved_path = generate_numeric_chart(filtered_df, selected_column, charts_dir)
             elif result["type"] == "categorical":
-                saved_path = generate_categorical_chart(df, selected_column, charts_dir)
+                saved_path = generate_categorical_chart(filtered_df, selected_column, charts_dir)
             else:
                 saved_path = None
 
@@ -72,11 +80,13 @@ def index():
     return render_template(
         "index.html",
         columns=columns,
+        districts=districts,
         result=result,
         chart_filename=chart_filename,
         txt_file=txt_file,
         csv_file=csv_file,
-        selected_column=selected_column
+        selected_column=selected_column,
+        selected_district=selected_district
     )
 
 # -------------------------------------------------
