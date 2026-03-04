@@ -41,6 +41,7 @@
 
             {% if result.type == 'numeric' %}
                 <table>
+                    <tr><th>District</th><td>{{ selected_district }}</td></tr>
                     <tr><th>Column</th><td>{{ result.column }}</td></tr>
                     <tr><th>Count</th><td>{{ result.summary.count }}</td></tr>
                     <tr><th>Mean</th><td>{{ result.summary.mean }}</td></tr>
@@ -52,6 +53,7 @@
 
             {% elif result.type == 'categorical' %}
                 <table>
+                    <tr><th>District</th><td>{{ selected_district }}</td></tr>
                     <tr><th>Column</th><td>{{ result.column }}</td></tr>
                     <tr><th>Unique Values</th><td>{{ result.unique_values }}</td></tr>
                 </table>
